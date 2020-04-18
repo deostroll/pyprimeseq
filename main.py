@@ -44,15 +44,18 @@ class P2n_1:
     else:
       raise Exception("Invalid prime:", self.start)
     return self
+
   def __next__(self):
     result = self.start ** ((2 ** self.s) - 1)
     # result = gmp
     self.s += 1
     return result
+
   def get_iterator(self):
     if self.iterator is None:
       self.iterator = iter(self)
     return self.iterator
+
   def reset_iterator(self):
     self.iterator = iter(self)
     return self.iterator
@@ -82,4 +85,14 @@ class RDict(dict):
         break
     return dict.__getitem__(self, key) if nxt == key else None
 
+def nf2n(p, n):
+  return gmpy2.mpz(p) ** 2 ** n
+
+def nf2n_1(p, n):
+  return gmpy2.mpz(p) ** (2 ** n - 1)
+
+def serial_iterator(n = 0):
+  while True:
+    yield n
+    n += 1
 
