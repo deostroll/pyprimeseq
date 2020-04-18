@@ -1,22 +1,6 @@
-import math
-import matplotlib.pyplot as plt
-import numpy as np
 import gmpy2
 
-def is_prime(n):
-  if n == 1:
-    return False
-  elif n == 2:
-    return True
-  elif n > 2 and n % 2 == 0:
-    return False
-  m = math.floor(math.sqrt(n))
-  for x in range(3, m + 1, 2):
-    if n % x == 0:
-      return False
-  return True
-
-class PrimeIter:
+class PIter:
   def __init__(self):
     self.num_list = []
 
@@ -33,41 +17,6 @@ class PrimeIter:
     self.n += 1
     return num
 
-# CONST = (1 / math.log(2))
-def calculate_n(p, N):
-  return  (1 / math.log(2)) * math.log(math.log(N)/math.log(p))
-
-# primes = PrimeIter()
-# piter = iter(primes)
-
-# val = 17 ** 3
-# print('Number:', val)
-
-def generate_data(size, num):
-  data = []
-  prime_iterator = PrimeIter()
-  _iter = iter(prime_iterator)
-  
-  for i in range(0, size):
-    p = next(_iter)
-    n = calculate_n(p, num)
-    data.append([p,n])
-  
-  return data
-
-def plot(N, size):
-  data = generate_data(size, N)
-  x = np.arange(1, len(data) + 1)
-  y = np.array(data)[:, 1]
-
-  plt.plot(x, y)
-  plt.show()
-  return data
-
-def is_in_interval(n, percentage):
-  i = (n * 1 - percentage, n * 1 + percentage)
-  return n > i[0] and n < i[1]
-
 def sqrt_test(N):
   n = N
   while True:
@@ -77,9 +26,10 @@ def sqrt_test(N):
     n = root
   return gmpy2.is_prime(n)
 
-class RSeqIterator:
-  def __init__(self):
+class RIterator:
+  def __init__(self, store = False):
     self.num_list = []
+    self.store = store
   
   def __iter__(self):
     self.n = gmpy2.mpz(1)
@@ -93,7 +43,72 @@ class RSeqIterator:
         n = gmpy2.add(n, 1)
         continue
       elif sqrt_test(n) == False:
-        self.num_list.append(n)
+        if self.store:
+          self.num_list.append(n)
         self.n = gmpy2.add(n, 1)
         return n
       n = gmpy2.add(n, 1)
+
+class P2n:
+  def __init__(self, start):
+    self.start = start
+    self.iterator = None
+    
+  def __iter__(self):
+    if gmpy2.is_prime(self.start):
+      self.s = 0
+    else:
+      raise Exception("Invalid prime:", self.start)
+    return self
+  def __next__(self):
+    result = self.start ** 2 ** self.s
+    # result = gmp
+    self.s += 1
+    return result
+  def get_iterator(self):
+    if self.iterator is None:
+      self.iterator = iter(self)
+    return self.iterator
+  def reset_iterator(self):
+    self.iterator = iter(self)
+    return self.iterator
+
+class P2n_1:
+  def __init__(self, start):
+    self.start = start
+    self.iterator = None
+    
+  def __iter__(self):
+    if gmpy2.is_prime(self.start):
+      self.s = 0
+    else:
+      raise Exception("Invalid prime:", self.start)
+    return self
+  def __next__(self):
+    result = self.start ** ((2 ** self.s) - 1)
+    # result = gmp
+    self.s += 1
+    return result
+  def get_iterator(self):
+    if self.iterator is None:
+      self.iterator = iter(self)
+    return self.iterator
+  def reset_iterator(self):
+    self.iterator = iter(self)
+    return self.iterator
+
+def gen_terms(iterator, terms):
+  return [ next(iterator) for x in range(0, terms)]
+
+r_iterator = RIterator()
+riter = iter(r_iterator)
+
+p2 = P2n(2)
+p2iter = p2.get_iterator()
+
+p2_1 = P2n_1(2)
+p2n_1iter = p2_1.get_iterator()
+
+r_terms = gen_terms(riter, 10)
+p2n_terms = gen_terms(p2iter, 10)
+p2n_1_terms = gen_terms(p2n_1iter, 10)
