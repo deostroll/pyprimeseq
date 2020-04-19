@@ -78,7 +78,7 @@ class RDict(dict):
     _iter = self._iterator
     for x in range(0, 100):
       value = next(_iter)
-      dict.__setitem__(self, value, { 'hits':[] })
+      dict.__setitem__(self, value, { 'used': False })
       if until is not None and value >= until:
         break
     return value
@@ -129,6 +129,43 @@ def series_terms_enumerator(prime, start = 0, list_size = 3):
               NC( nf2n(prime, n) ),     \
               NC( nf2n_1(prime, n) )    \
             ) for n in range(start, start + list_size)]
+
+def PrimeGenLimit(limit):
+  p = PrimeGen()
+  _yield = next(p)
+  while _yield <= limit:
+    yield _yield
+    _yield = next(p)
+
+def series_synthesize(series, rdict):
+  term0 = series[0]
+  prime_seed = term0[0]
+  length = len(series)
+
+  for x in range(1, length):
+    curr = series[x]
+    prev = series[x - 1]
+    low = prev[3].n
+    high = curr[3].n
+
+    if high - low - 1 > 0:
+      for y in range(low + 1, high):
+        term = (prime_seed, y)
+        value = prime_seed * y
+        r = rdict[value]
+        if 'hits' in r.keys():
+          r['hits'].append(term)
+        else:
+          hits = []
+          for prime in PrimeGenLimit(prime_seed):
+            if value % prime == 0:
+              hits.append((prime, value//prime))
+          r['hits'] = hits
+          r['used'] = True
+
+
+
+
       
 # =========
 
@@ -181,10 +218,62 @@ def series_terms_enumerator(prime, start = 0, list_size = 3):
 
 # ================= 2020-04-19 10:22:28 - test PrimeGen
 
-gen = PrimeGen()
+# gen = PrimeGen()
 
-print([ next(gen) for x in range(0, 10)])
+# print([ next(gen) for x in range(0, 10)])
 
-gen2 = PrimeGen(10)
-print([ next(gen2) for x in range(0, 10)])
+# gen2 = PrimeGen(10)
+# print([ next(gen2) for x in range(0, 10)])
 
+# ================= 2020-04-19 10:44:47 - test prime gen limit
+
+# p = 13
+
+# g = PrimeGenLimit(p)
+
+# print([ x for x in g ])
+
+# ================= 2020-04-19 10:56:47 - testing synthesizer
+
+# rdict = RDict()
+# p2_0_2 = series_terms_enumerator(2)
+# pp(p2_0_2)
+
+# series_synthesize(p2_0_2, rdict)
+
+# p3_0_3 = series_terms_enumerator(3)
+# pp(p3_0_3)
+
+# series_synthesize(p3_0_3, rdict)
+
+# p5_0_5 = series_terms_enumerator(5)
+# pp(p5_0_5)
+
+# series_synthesize(p5_0_5, rdict)
+
+# pp(rdict)
+
+# ================= 2020-04-19 12:40:07 - testing the synthesizer over a pre-generated prime set
+
+def n_prime_generator(n):
+  g = PrimeGen()
+  for x in range(0, n):
+    yield next(g)
+
+def main(n, t):
+  rdict = RDict()
+  for p in n_prime_generator(n):
+    series = series_terms_enumerator(p, list_size=t)
+    pp(series)
+    series_synthesize(series,rdict)
+  pp(rdict)
+
+if __name__ == '__main__':
+  import argparse
+
+  parser = argparse.ArgumentParser(description='Tracks the residual terms for prime series')
+  parser.add_argument('-n', '--size', help='Compute for the first n primes', type=int, metavar='size')
+  parser.add_argument('-t', '--terms', help='Number of terms to compute for each prime series', type=int, metavar='terms')
+
+  args = parser.parse_args()
+  main(args.size, args.terms)
