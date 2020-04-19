@@ -170,5 +170,5 @@ p2_3_5 = series_terms_enumerator(p, 3)
 
 pp(p2_3_5)
 
-p2_0_5 = series_terms_enumerator(p, list_size=5)
-pp(p2_0_5)
+p2_0_4 = series_terms_enumerator(p, list_size=5)
+pp(p2_0_4)
