@@ -10,6 +10,12 @@ def sqrt_test(N):
     n = root
   return gmpy2.is_prime(n)
 
+def PrimeGen(n = 2):
+  while True:
+    if gmpy2.is_prime(n):
+      yield n
+    n += 1
+
 class RIterator:
   def __init__(self, store = False):
     self.num_list = []
@@ -72,7 +78,7 @@ class RDict(dict):
     _iter = self._iterator
     for x in range(0, 100):
       value = next(_iter)
-      dict.__setitem__(self, value, { 'used' : False })
+      dict.__setitem__(self, value, { 'hits':[] })
       if until is not None and value >= until:
         break
     return value
@@ -119,7 +125,7 @@ class NC:
 def series_terms_enumerator(prime, start = 0, list_size = 3):
   return [ ( \
               prime,                    \
-              n,
+              n,                        \
               NC( nf2n(prime, n) ),     \
               NC( nf2n_1(prime, n) )    \
             ) for n in range(start, start + list_size)]
@@ -160,15 +166,25 @@ def series_terms_enumerator(prime, start = 0, list_size = 3):
 # res = filter(lambda t: t[1]['used'] == False, rdict.items())
 # pp(dict(res))
 
-# =================
-p = 2
-p2_0_2 = series_terms_enumerator(p)
+# ================= 2020-04-19 10:22:00 - testing series enumerator
+# p = 2
+# p2_0_2 = series_terms_enumerator(p)
 
-pp(p2_0_2)
+# pp(p2_0_2)
 
-p2_3_5 = series_terms_enumerator(p, 3)
+# p2_3_5 = series_terms_enumerator(p, 3)
 
-pp(p2_3_5)
+# pp(p2_3_5)
 
-p2_0_4 = series_terms_enumerator(p, list_size=5)
-pp(p2_0_4)
+# p2_0_4 = series_terms_enumerator(p, list_size=5)
+# pp(p2_0_4)
+
+# ================= 2020-04-19 10:22:28 - test PrimeGen
+
+gen = PrimeGen()
+
+print([ next(gen) for x in range(0, 10)])
+
+gen2 = PrimeGen(10)
+print([ next(gen2) for x in range(0, 10)])
+
